@@ -1,0 +1,45 @@
+{
+  "name": "Cupa Moldovei",
+  "cabrillo_name": "CUPA MOLDOVEI",
+  "description": "A treia luni din februarie, 2 etape x 1h (15-16 si 16-17 UTC). 80m CW+SSB. Schimb: RST+serial+judet. QSO cu Moldova: SSB=4pct/CW=8pct. QSO YO-YO: SSB=2pct/CW=4pct. Multiplicator: judete+BC+prefix tara.",
+  "scoring_mode": "cupa_moldovei",
+  "points_per_qso": 2,
+  "points_cw": 4,
+  "points_moldova_ssb": 4,
+  "points_moldova_cw": 8,
+  "min_qso": 0,
+  "allowed_bands": [
+    "80m"
+  ],
+  "allowed_modes": [
+    "SSB",
+    "CW",
+    "PH"
+  ],
+  "duration_hours": 2,
+  "exchange": "county",
+  "multiplier": "county",
+  "cross_check": true,
+  "moldova_counties": [
+    "BC",
+    "BT",
+    "GL",
+    "IS",
+    "NT",
+    "SV",
+    "VN",
+    "VS"
+  ],
+  "categories": {
+    "A": "Statii de club CW & SSB",
+    "B": "Statii individuale CW",
+    "C": "Statii individuale SSB",
+    "D": "Statii individuale CW & SSB",
+    "E": "Statii individuale YL CW",
+    "F": "Statii individuale YL SSB",
+    "G": "Receptori CW & SSB"
+  },
+  "organizer": "Radioclubul Municipal Bacau",
+  "email": "yo8bfb@gmail.com",
+  "log_deadline_days": 10
+}

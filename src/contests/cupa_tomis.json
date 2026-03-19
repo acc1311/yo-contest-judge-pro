@@ -1,0 +1,55 @@
+{
+  "name": "Cupa Tomis",
+  "cabrillo_name": "CUPA TOMIS",
+  "description": "Ultima luni din feb, 16:00-17:59 UTC, 2 etape x 1h. 80m CW (3510-3560)+SSB (3675-3775). Schimb: RST+3cifre stafeta. YO4KCA/YO4KRB=4pct, membri club=2pct, altii=1pct. Fara multiplicator. Toleranta timp: 5 minute.",
+  "scoring_mode": "cupa_tomis",
+  "points_per_qso": 1,
+  "points_special_main": 4,
+  "points_special_members": 2,
+  "min_qso": 0,
+  "allowed_bands": [
+    "80m"
+  ],
+  "allowed_modes": [
+    "SSB",
+    "CW",
+    "PH"
+  ],
+  "duration_hours": 2,
+  "exchange": "serial",
+  "multiplier": "none",
+  "cross_check": true,
+  "tolerance_min": 5,
+  "special_calls_4pt": [
+    "YO4KCA",
+    "YO4KRB"
+  ],
+  "special_calls_2pt": [
+    "YO4NF",
+    "YO4DW",
+    "YO4FPF",
+    "YO4CPO",
+    "YO4NT",
+    "YO4BXX",
+    "YO4CSG",
+    "YO4SX",
+    "YO4FRF",
+    "YO4ASV",
+    "YO4BTB",
+    "YO9GZU",
+    "YO3AI",
+    "YO4YPC",
+    "YO4AUL",
+    "YO4FNG",
+    "YO4LUP",
+    "YO4WO"
+  ],
+  "categories": {
+    "A": "Putere mare (>100W)",
+    "B": "Putere mica (<100W)",
+    "C": "Receptori (SWL)"
+  },
+  "organizer": "Asociatia Radioclubul Radu Bratu",
+  "email": "yo4dw.ro@gmail.com",
+  "log_deadline_days": 10
+}

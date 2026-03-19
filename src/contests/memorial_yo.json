@@ -1,0 +1,23 @@
+{
+  "name": "Memorial YO",
+  "cabrillo_name": "MEMORIAL YO",
+  "description": "Prima luni din noiembrie, 16:00-16:59 UTC. 80m CW (3510-3560) + SSB (3675-3775). Schimb: RST. Optional: indicativ/nume radioamator roman decedat (nu se trece in log). Log in 48h la us@hamradio.ro.",
+  "scoring_mode": "per_qso",
+  "points_per_qso": 1,
+  "min_qso": 0,
+  "allowed_bands": [
+    "80m"
+  ],
+  "allowed_modes": [
+    "SSB",
+    "CW",
+    "PH"
+  ],
+  "duration_hours": 1,
+  "exchange": "none",
+  "multiplier": "none",
+  "cross_check": true,
+  "organizer": "YO DX Club",
+  "email": "us@hamradio.ro",
+  "log_deadline_hours": 48
+}

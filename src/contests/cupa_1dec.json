@@ -1,0 +1,32 @@
+{
+  "name": "Cupa 1 Decembrie",
+  "cabrillo_name": "CUPA 1 DECEMBRIE",
+  "description": "1 Decembrie, 14:00-16:00 UTC, 2 etape x 1h. 80m SSB 3675-3775 kHz. Max 100W. Schimb: RS+001+judet (AA pt afara YO). 2pct/QSO. Multiplicator: judete+propriu+YQ0U. Scor=puncte x multiplicatori per etapa, Scor final=suma etape.",
+  "scoring_mode": "per_qso_x_mult",
+  "points_per_qso": 2,
+  "min_qso": 0,
+  "allowed_bands": [
+    "80m"
+  ],
+  "allowed_modes": [
+    "SSB",
+    "PH"
+  ],
+  "duration_hours": 2,
+  "exchange": "county",
+  "multiplier": "county",
+  "cross_check": true,
+  "special_calls": {
+    "YQ0U": 1
+  },
+  "max_power_w": 100,
+  "categories": {
+    "A": "Seniori",
+    "B": "Juniori (sub 18 ani)",
+    "C": "Statii de club (1-2 operatori)",
+    "D": "Receptori"
+  },
+  "organizer": "Asociatia Judeteana de Radioamatorism DX Radio Alba",
+  "email": "yo5ddd@yahoo.com",
+  "log_deadline_days": 10
+}

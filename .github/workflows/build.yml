@@ -1,0 +1,271 @@
+name: Build & Release — YO Contest Judge PRO
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versiune release (ex: v2.2.0)'
+        required: false
+        default: 'v2.2.0'
+
+permissions:
+  contents: write
+
+jobs:
+
+  # ─────────────────────────────────────────────────────────────
+  # JOB 1: Teste automate
+  # ─────────────────────────────────────────────────────────────
+  test:
+    name: Teste Python (${{ matrix.os }} / py${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.11']
+
+    steps:
+      - name: Checkout cod
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Instaleaza Tkinter (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y python3-tk xvfb
+
+      - name: Ruleaza teste
+        run: python -m unittest tests.test_core -v
+        env:
+          DISPLAY: ':99'
+
+      - name: Verifica sintaxa
+        run: |
+          python -m py_compile src/main.py
+          python -m py_compile src/core/scoring_engine.py
+          python -m py_compile src/core/contest_rules.py
+          python -m py_compile src/core/cross_check.py
+          python -m py_compile src/core/pdf_export.py
+          python -m py_compile src/gui/theme_engine.py
+          python -m py_compile src/gui/theme_dialog.py
+
+  # ─────────────────────────────────────────────────────────────
+  # JOB 2: Build EXE Windows 8/10/11  (Python 3.11)
+  # ─────────────────────────────────────────────────────────────
+  build-win-modern:
+    name: Build EXE Windows 8/10/11 (Python 3.11)
+    runs-on: windows-latest
+    needs: test
+
+    steps:
+      - name: Checkout cod
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Instaleaza PyInstaller
+        run: pip install "pyinstaller>=6.0"
+
+      - name: Build EXE
+        run: pyinstaller build/build.spec --distpath dist_modern --workpath build/work_modern --noconfirm
+        shell: pwsh
+
+      - name: Redenumeste EXE
+        run: |
+          $ver = "${{ github.ref_name }}"
+          if (-not $ver) { $ver = "v2.2.0" }
+          $src  = "dist_modern\YOContestJudgePRO.exe"
+          $dest = "dist_modern\YOContestJudgePRO-${ver}-Win8-11.exe"
+          Rename-Item $src $dest
+          Write-Host "EXE: $(Get-Item $dest | Select-Object -ExpandProperty Length) bytes"
+        shell: pwsh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: exe-win-modern
+          path: dist_modern\YOContestJudgePRO-*-Win8-11.exe
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────
+  # JOB 3: Build EXE Windows 7 SP1+  (Python 3.8)
+  # PyInstaller 5.x + Python 3.8 = ultimul combo compatibil Win7
+  # ─────────────────────────────────────────────────────────────
+  build-win7:
+    name: Build EXE Windows 7 (Python 3.8)
+    runs-on: windows-2019      # ← Windows Server 2019, mai compatibil
+    needs: test
+
+    steps:
+      - name: Checkout cod
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.8
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8'
+          cache: 'pip'
+
+      - name: Instaleaza PyInstaller 5.x (compatibil Win7)
+        # PyInstaller 6+ abandona Win7; 5.13 este ultima versiune cu suport Win7
+        run: pip install "pyinstaller==5.13.2"
+
+      - name: Build EXE Win7
+        run: pyinstaller build/build.spec --distpath dist_win7 --workpath build/work_win7 --noconfirm
+        shell: pwsh
+
+      - name: Redenumeste EXE
+        run: |
+          $ver = "${{ github.ref_name }}"
+          if (-not $ver) { $ver = "v2.2.0" }
+          $src  = "dist_win7\YOContestJudgePRO.exe"
+          $dest = "dist_win7\YOContestJudgePRO-${ver}-Win7.exe"
+          Rename-Item $src $dest
+          Write-Host "EXE Win7: $(Get-Item $dest | Select-Object -ExpandProperty Length) bytes"
+        shell: pwsh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: exe-win7
+          path: dist_win7\YOContestJudgePRO-*-Win7.exe
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────
+  # JOB 4: Arhiva sursa cross-platform
+  # ─────────────────────────────────────────────────────────────
+  build-source:
+    name: Build arhiva sursa
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout cod
+        uses: actions/checkout@v4
+
+      - name: Creeaza arhiva sursa ZIP
+        run: |
+          VER="${{ github.ref_name }}"
+          if [ -z "$VER" ]; then VER="v2.2.0"; fi
+          mkdir -p dist_source
+          zip -r "dist_source/YOContestJudgePRO-${VER}-source.zip" \
+            src/ tests/ build/ docs/ README.md requirements.txt \
+            CHANGELOG.md SETUP_GITHUB.md .gitignore \
+            --exclude "*__pycache__*" --exclude "*.pyc" \
+            --exclude "*/work/*" --exclude "*/work_*/*"
+          echo "Sursa: $(du -sh dist_source/*.zip)"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: source-zip
+          path: dist_source/YOContestJudgePRO-*-source.zip
+          retention-days: 30
+
+  # ─────────────────────────────────────────────────────────────
+  # JOB 5: Creare Release GitHub
+  # ─────────────────────────────────────────────────────────────
+  release:
+    name: Creare Release GitHub
+    runs-on: ubuntu-latest
+    needs: [build-win-modern, build-win7, build-source]
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - name: Checkout cod
+        uses: actions/checkout@v4
+
+      - name: Download artifact EXE modern
+        uses: actions/download-artifact@v4
+        with:
+          name: exe-win-modern
+          path: release-files/
+
+      - name: Download artifact EXE Win7
+        uses: actions/download-artifact@v4
+        with:
+          name: exe-win7
+          path: release-files/
+
+      - name: Download artifact sursa
+        uses: actions/download-artifact@v4
+        with:
+          name: source-zip
+          path: release-files/
+
+      - name: Genereaza SHA256 checksums
+        run: |
+          cd release-files
+          sha256sum * > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+
+      - name: Extrage versiunea
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Creeaza GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.VERSION }}
+          name: "YO Contest Judge PRO ${{ steps.version.outputs.VERSION }}"
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+          body: |
+            ## YO Contest Judge PRO ${{ steps.version.outputs.VERSION }}
+
+            **Arbitraj profesional pentru concursuri de radioamatori YO**
+            Autor: YO8ACR — yo8acr@gmail.com
+
+            ---
+
+            ### 📦 Descarca EXE
+
+            | Fisier | Windows | Descriere |
+            |--------|---------|-----------|
+            | `YOContestJudgePRO-*-Win8-11.exe` | Windows 8 / 10 / 11 | Python 3.11, PyInstaller 6 |
+            | `YOContestJudgePRO-*-Win7.exe` | **Windows 7 SP1+** | Python 3.8, PyInstaller 5.13 |
+            | `YOContestJudgePRO-*-source.zip` | Linux / macOS | Cod sursa Python, zero instalare |
+            | `SHA256SUMS.txt` | — | Checksumuri pentru verificare |
+
+            > **Windows 7:** Necesita [Visual C++ Redistributable 2015-2022](https://aka.ms/vs/17/release/vc_redist.x86.exe) instalat.
+            > **SmartScreen:** La primul start click "More info" → "Run anyway".
+
+            ### 🐧 Linux / macOS
+            ```bash
+            sudo apt install python3-tk   # Linux
+            python3 src/main.py
+            ```
+
+            ### ✨ Nou in aceasta versiune
+            - Export PDF nativ (zero dependente externe)
+            - 8 teme + editor teme custom + setare font
+            - Maraton IC: verificare max 1 QSO/zi per statie
+            - Validare locator Maidenhead (VHF)
+            - Verificare intervale orare per concurs
+            - Indicative portabile /P /M /MM validate corect
+            - Cupa Moldovei: multiplicatori judete + DXCC
+            - Toleranta Cupa Tomis din JSON (5 min)
+            - 39 teste unitare automate
+
+            ---
+            73 de YO8ACR! 🎙️
+          files: |
+            release-files/YOContestJudgePRO*.exe
+            release-files/YOContestJudgePRO*-source.zip
+            release-files/SHA256SUMS.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
