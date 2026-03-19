@@ -1,0 +1,20 @@
+# YO Contest Judge PRO v2.2
+# Dependente externe: ZERO (toate librarii sunt stdlib Python 3.6+)
+#
+# Optional — pentru export PDF de calitate superioara:
+# weasyprint>=60.0
+#
+# Optional — pentru build EXE Windows:
+# pyinstaller>=6.0
+#
+# Librarii folosite (toate stdlib):
+#   tkinter    — GUI
+#   json       — import/export JSON
+#   csv        — import/export CSV
+#   re         — validare indicative, parsare
+#   datetime   — validare data/ora
+#   math       — calcul distanta VHF
+#   os, sys    — sistem fisiere
+#   collections — defaultdict, Counter
+#   webbrowser — deschide rapoarte HTML
+#   copy       — teme (deepcopy)
