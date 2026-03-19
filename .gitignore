@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/work/
+.eggs/
+
+# PyInstaller
+*.spec.bak
+build/work/
+
+# Date utilizator (generate la runtime)
+data/
+*.session
+*.backup
+*.autosave
+themes/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Teste
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Temporare
+*.tmp
+*.log
