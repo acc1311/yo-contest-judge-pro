@@ -30,10 +30,10 @@ jobs:
 
     steps:
       - name: Checkout cod
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.4.0
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -68,10 +68,10 @@ jobs:
 
     steps:
       - name: Checkout cod
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Setup Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.4.0
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -85,16 +85,22 @@ jobs:
 
       - name: Redenumeste EXE
         run: |
-          $ver = "${{ github.ref_name }}"
-          if (-not $ver) { $ver = "v2.2.0" }
+          $tag = "${{ github.ref_name }}"
+          if ([string]::IsNullOrEmpty($tag) -or $tag -eq "main") { $tag = "v2.2.0" }
           $src  = "dist_modern\YOContestJudgePRO.exe"
-          $dest = "dist_modern\YOContestJudgePRO-${ver}-Win8-11.exe"
-          Rename-Item $src $dest
-          Write-Host "EXE: $(Get-Item $dest | Select-Object -ExpandProperty Length) bytes"
+          $dest = "dist_modern\YOContestJudgePRO-$tag-Win8-11.exe"
+          if (Test-Path $src) {
+            Copy-Item $src $dest
+            Write-Host "EXE creat: $dest ($($(Get-Item $dest).Length) bytes)"
+          } else {
+            Write-Error "Fisierul EXE nu a fost gasit la: $src"
+            Get-ChildItem dist_modern\ | Write-Host
+            exit 1
+          }
         shell: pwsh
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: exe-win-modern
           path: dist_modern\YOContestJudgePRO-*-Win8-11.exe
@@ -111,10 +117,10 @@ jobs:
 
     steps:
       - name: Checkout cod
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Setup Python 3.8
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5.4.0
         with:
           python-version: '3.8'
           cache: 'pip'
@@ -129,16 +135,22 @@ jobs:
 
       - name: Redenumeste EXE
         run: |
-          $ver = "${{ github.ref_name }}"
-          if (-not $ver) { $ver = "v2.2.0" }
+          $tag = "${{ github.ref_name }}"
+          if ([string]::IsNullOrEmpty($tag) -or $tag -eq "main") { $tag = "v2.2.0" }
           $src  = "dist_win7\YOContestJudgePRO.exe"
-          $dest = "dist_win7\YOContestJudgePRO-${ver}-Win7.exe"
-          Rename-Item $src $dest
-          Write-Host "EXE Win7: $(Get-Item $dest | Select-Object -ExpandProperty Length) bytes"
+          $dest = "dist_win7\YOContestJudgePRO-$tag-Win7.exe"
+          if (Test-Path $src) {
+            Copy-Item $src $dest
+            Write-Host "EXE Win7 creat: $dest ($($(Get-Item $dest).Length) bytes)"
+          } else {
+            Write-Error "Fisierul EXE nu a fost gasit la: $src"
+            Get-ChildItem dist_win7\ | Write-Host
+            exit 1
+          }
         shell: pwsh
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: exe-win7
           path: dist_win7\YOContestJudgePRO-*-Win7.exe
@@ -154,7 +166,7 @@ jobs:
 
     steps:
       - name: Checkout cod
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Creeaza arhiva sursa ZIP
         run: |
@@ -169,7 +181,7 @@ jobs:
           echo "Sursa: $(du -sh dist_source/*.zip)"
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.6.2
         with:
           name: source-zip
           path: dist_source/YOContestJudgePRO-*-source.zip
@@ -186,22 +198,22 @@ jobs:
 
     steps:
       - name: Checkout cod
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.2.2
 
       - name: Download artifact EXE modern
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.3.0
         with:
           name: exe-win-modern
           path: release-files/
 
       - name: Download artifact EXE Win7
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.3.0
         with:
           name: exe-win7
           path: release-files/
 
       - name: Download artifact sursa
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v4.3.0
         with:
           name: source-zip
           path: release-files/
@@ -217,7 +229,7 @@ jobs:
         run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Creeaza GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v2.2.1
         with:
           tag_name: ${{ steps.version.outputs.VERSION }}
           name: "YO Contest Judge PRO ${{ steps.version.outputs.VERSION }}"
