@@ -112,7 +112,7 @@ jobs:
   # ─────────────────────────────────────────────────────────────
   build-win7:
     name: Build EXE Windows 7 (Python 3.8)
-    runs-on: windows-2019      # ← Windows Server 2019, mai compatibil
+    runs-on: windows-2022      # ← FIX: windows-2019 a fost retras de GitHub
     needs: test
 
     steps:
