@@ -197,6 +197,11 @@ def load_contests(contests_dir=None):
     contests = {}
     contests.update(BUILT_IN)
     load_errors = []
+
+    # Construieste set cu cheile si numele built-in pentru detectie duplicate
+    builtin_keys  = set(BUILT_IN.keys())
+    builtin_names = {v["name"].strip().lower() for v in BUILT_IN.values()}
+
     if contests_dir and os.path.isdir(contests_dir):
         for fn in sorted(os.listdir(contests_dir)):
             if not fn.endswith(".json"):
@@ -206,6 +211,15 @@ def load_contests(contests_dir=None):
                 with open(fp, encoding="utf-8") as f:
                     data = json.load(f)
                 cid = os.path.splitext(fn)[0]
+
+                # FIX — sari peste JSON-urile care dubleaza un concurs built-in
+                # (fie prin cheie identica, fie prin nume identic)
+                if cid in builtin_keys:
+                    continue
+                json_name = data.get("name", "").strip().lower()
+                if json_name and json_name in builtin_names:
+                    continue
+
                 for k, v in BUILT_IN["simplu"].items():
                     data.setdefault(k, v)
                 contests[cid] = data
